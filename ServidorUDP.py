@@ -1,3 +1,5 @@
+# Código se basa en: https://pythontic.com/modules/socket/udp-client-server-example
+# https://www.binarytides.com/programming-udp-sockets-in-python/
 import socket
 
 localIP = "127.0.0.1"
