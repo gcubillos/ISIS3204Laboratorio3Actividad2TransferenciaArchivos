@@ -2,11 +2,11 @@
 # https://www.binarytides.com/programming-udp-sockets-in-python/
 
 import socket
+from pip._vendor.distlib.compat import raw_input
+import tqdm
 
 # Punto 1: Conectarse a servidor y mostrar estado de conexión. Dado que UDP no está orientado a la conexión, se verifica
 # la comunicación entre el cliente y servidor mediante un mensaje que manda el cliente y el servidor responde.
-from pip._vendor.distlib.compat import raw_input
-
 ipServidor = raw_input('Ingrese la dirección IP del servidor con el que se va a realizar la conexión: ')
 ipServidor = "127.0.0.1"
 
@@ -15,7 +15,7 @@ puertoServidor = 20001
 
 direccionServidor = (ipServidor, puertoServidor)
 
-mensajeBasico = ('Hola Servidor')
+mensajeBasico = ('Inicio')
 
 bytesEnviar = str.encode(mensajeBasico)
 
