@@ -1,0 +1,2 @@
+Archivos[[:space:]]a[[:space:]]Transferir/224MB.exe filter=lfs diff=lfs merge=lfs -text
+Archivos[[:space:]]a[[:space:]]Transferir/Multimedia.mov filter=lfs diff=lfs merge=lfs -text
