@@ -10,15 +10,10 @@ import hashlib
 import tqdm
 from pip._vendor.distlib.compat import raw_input
 
-# Punto 1
-ipLocal = "127.0.0.1"
-
-puertoLocal = 20001
-
 # Tamanio en el que se va a fragmentar los archivos.
 # Punto 2
 tamanioBuffer = raw_input('Defina el tamanio de los mensajes en que se van a fragmentar los archivos. Ingrese un numero '
-                          'entre 1 - 65536')
+                          'entre 1 - 65536 ')
 tamanioBuffer = 1024
 
 # Ubicar archivos
@@ -59,26 +54,33 @@ with open('Archivos a Transferir/224MB.exe', 'rb') as aDriver:
         buf = aDriver.read(tamanioBuffer)
 valorHashDriver = hashDriver.hexdigest()
 
+# Punto 1
+ipLocal = "127.0.0.1"
+
+puertoLocal = 20001
 
 # Crear socket
 
 socketServidorUDP = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
-# Bind to address and ip
+# Vincular socket a dirección e ip
 
 socketServidorUDP.bind((ipLocal, puertoLocal))
 
-print("Servidor UDP abierto a conexiones")
-
-# Seleccionar archivo
-archivoSeleccionado = int(raw_input('Seleccione el archivo a enviar: 0: Multimedia (117 MB) 1: Driver (224 MB)'))
-
-# Numero de clientes a enviar archivo
-numClientes = int(raw_input('Indique el numero de clientes a los que se les va a enviar el archivo en simultaneo'))
 
 # Esperar mensajes de clientes
 numClientesConectados = 0
+print("Servidor UDP abierto a conexiones")
 while (True):
+    # Punto 5
+    seleccionaArchivoyNumeroClientes = False
+    while (not seleccionaArchivoyNumeroClientes):
+        # Seleccionar archivo
+        archivoSeleccionado = int(raw_input('Seleccione el archivo a enviar: 0: Multimedia (117 MB) 1: Driver (224 MB) '))
+        # Numero de clientes a enviar archivo
+        numClientes = int(raw_input('Indique el numero de clientes a los que se les va a enviar el archivo en simultaneo '))
+        if((archivoSeleccionado == 1 or archivoSeleccionado == 0) and numClientes > 0):
+            seleccionaArchivoyNumeroClientes = True
 
     bytesAddressPair = socketServidorUDP.recvfrom(tamanioBuffer)
 
@@ -86,8 +88,12 @@ while (True):
 
     address = bytesAddressPair[1]
 
+    if(message == 'Inicio'):
+        print('Inicio')
+
     clientMsg = "Message from Client:{}".format(message)
-    clientIP = "Client IP Address:{}".format(address)
 
     print(clientMsg)
-    print(clientIP)
+
+
+
