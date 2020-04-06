@@ -15,9 +15,7 @@ puertoServidor = 20001
 
 direccionServidor = (ipServidor, puertoServidor)
 
-mensajeBasico = ('Inicio')
-
-bytesEnviar = str.encode(mensajeBasico)
+mensajeInicio = str.encode('Inicio')
 
 tamanioBuffer = 1024
 
@@ -27,7 +25,7 @@ socketClienteUDP = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
 # Enviar mensaje a servidor UDP
 
-socketClienteUDP.sendto(bytesEnviar, direccionServidor)
+socketClienteUDP.sendto(mensajeInicio, direccionServidor)
 
 respuestaServidor = socketClienteUDP.recvfrom(tamanioBuffer)
 
@@ -36,9 +34,8 @@ msg = "Message from Server {}".format(respuestaServidor[0])
 print(msg)
 
 # Punto 2: Notificación de preparado para recibir datos.
-recibirDatos = int(raw_input('¿Está preparado para recibir datos? 0: No 1: Sí'))
-
-while(recibirDatos != 1):
+preparado = False
+while(not preparado):
     recibirDatos = int(raw_input('¿Está preparado para recibir datos? 0: No 1: Sí'))
 
 # Se envía la notificación al servidor
