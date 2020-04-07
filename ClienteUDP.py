@@ -25,7 +25,10 @@ socketClienteUDP = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 
 # Enviar mensaje a servidor UDP
 
-socketClienteUDP.sendto(mensajeInicio, direccionServidor)
+# Asignar direccion de servidor
+socketClienteUDP.connect(direccionServidor)
+
+socketClienteUDP.send(mensajeInicio)
 
 respuestaServidor = socketClienteUDP.recvfrom(tamanioBuffer)
 
