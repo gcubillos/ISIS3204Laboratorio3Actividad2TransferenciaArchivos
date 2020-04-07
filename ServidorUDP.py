@@ -100,24 +100,48 @@ while (True):
         if ((archivoSeleccionado == 1 or archivoSeleccionado == 0) and numClientes > 0):
             seleccionaArchivoyNumeroClientes = True
 
-    bytesAddressPair = socketServidorUDP.recvfrom(tamanioBuffer)
-
-    message = bytesAddressPair[0]
-
-    direccion = bytesAddressPair[1]
+    # Recibe mensaje del cliente y la dirección IP del cliente
+    mensaje, direccion = socketServidorUDP.recvfrom(tamanioBuffer)
 
     # Revisa el tipo de mensaje por el cliente y responde
-    if (message.decode("utf-8") == 'Inicio'):
+    if (mensaje.decode("utf-8") == 'Inicio'):
         mensajeConexionExitosa = str.encode("Cliente {}".format(direccion) + " conectado exitosamente con servidor")
         socketServidorUDP.sendto(mensajeConexionExitosa, direccion)
-    elif (message.decode("utf-8") == 'Listo'):
+    elif (mensaje.decode("utf-8") == 'Listo'):
         clientesConectados.append(Cliente(direccion))
 
     # Envia archivo y hash cuando el numero de clientes conectados es el deseado
     if (len(clientesConectados) == numClientes):
-        archivoEnviar = True
-        hashEnviar = True
+        # Determina la ruta del archivo a enviar, el hash a enviar y el número de fragmentos basado en el archivo escogido
+        # para transferencia
+        rutaArchivoEnviar = archivoMultimedia
+        hashEnviar = hashMultimedia
+        numFragmentosEnviar = fragmentosMultimedia
+        if (archivoSeleccionado):
+            rutaArchivoEnviar = archivoDriver
+            hashEnviar = hashDriver
+            numFragmentosEnviar = fragmentosDriver
+        for i in clientesConectados:
+            # Punto 3
+            # Enviar tamaño buffer | Número fragmentos a enviar | Hash calculado de archivo
+            socketServidorUDP.sendto(str.encode("Buffer: {}".format(tamanioBuffer)
+                                                + " Fragmentos: {}".format(numFragmentosEnviar)
+                                                + " Hash: {}".format(hashEnviar)), i.darDireccion())
+
+            # Enviar archivo
+            # Barra de progreso
+            progreso = tqdm.tqdm(range(numFragmentosEnviar), f"Sending {rutaArchivoEnviar}", unit="B",
+                                 unit_scale=True, unit_divisor=tamanioBuffer)
+
+            with open(rutaArchivoEnviar, 'rb') as archivoEnviar:
+                for _ in progreso:
+                    # Lectura de bytes del archivo
+                    bytesLeidos = archivoEnviar.read(tamanioBuffer)
+                    while (len(bytesLeidos) > 0):
+                        socketServidorUDP.sendto(bytesLeidos,i.darDireccion())
+                        # update the progress bar
+                        progreso.update(len(bytesLeidos))
+
         # Reinicia valores de archivo seleccionado y numero clientes a enviar archivo
         archivoSeleccionado = -1
         numClientes = 0
-
