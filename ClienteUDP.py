@@ -7,10 +7,10 @@ import tqdm
 
 # Punto 1: Conectarse a servidor y mostrar estado de conexión. Dado que UDP no está orientado a la conexión, se verifica
 # la comunicación entre el cliente y servidor mediante un mensaje que manda el cliente y el servidor responde.
-ipServidor = raw_input('Ingrese la dirección IP del servidor con el que se va a realizar la conexión: ')
+ipServidor = raw_input('Ingrese la dirección IP del servidor con el que se va a realizar la conexión:\n')
 ipServidor = "127.0.0.1"
 
-puertoServidor = raw_input('Ingrese el puerto del servidor: ')
+puertoServidor = raw_input('Ingrese el puerto del servidor:\n')
 puertoServidor = 20001
 
 direccionServidor = (ipServidor, puertoServidor)
@@ -29,23 +29,20 @@ socketClienteUDP.sendto(mensajeInicio, direccionServidor)
 
 respuestaServidor = socketClienteUDP.recvfrom(tamanioBuffer)
 
-msg = "Message from Server {}".format(respuestaServidor[0])
+msg = "Mensaje de Servidor: "+ respuestaServidor[0].decode("utf-8")
 
 print(msg)
 
 # Punto 2: Notificación de preparado para recibir datos.
 preparado = False
 while(not preparado):
-    recibirDatos = int(raw_input('¿Está preparado para recibir datos? 0: No 1: Sí'))
+    recibirDatos = int(raw_input('¿Está preparado para recibir datos? 0: No 1: Sí\n'))
+    if(recibirDatos == 1):
+        preparado = True
+
 
 # Se envía la notificación al servidor
+mensajeListo = ('Listo')
 
-notificacion = ('Listo')
-
-bytesEnviar = str.encode(notificacion)
-
-tamanioBuffer = 1024
-
-# Send to server using created UDP socket
-
-socketClienteUDP.sendto(bytesEnviar, direccionServidor)
+# Enviar mensaje a servidor
+socketClienteUDP.sendto(str.encode(mensajeListo), direccionServidor)
