@@ -12,8 +12,9 @@ from pip._vendor.distlib.compat import raw_input
 
 # Tamanio en el que se va a fragmentar los archivos.
 # Punto 2
-tamanioBuffer = raw_input('Defina el tamanio de los mensajes en que se van a fragmentar los archivos. Ingrese un numero '
-                          'entre 1 - 65536 ')
+tamanioBuffer = raw_input(
+    'Defina el tamanio de los mensajes en que se van a fragmentar los archivos. Ingrese un numero '
+    'entre 1 - 65536\n')
 tamanioBuffer = 1024
 
 # Ubicar archivos
@@ -32,8 +33,8 @@ tamanioDriver = os.path.getsize(archivoDriver)
 
 # Punto 3
 # Numero de fragmentos
-fragmentosMultimedia = math.ceil(tamanioMultimedia/tamanioBuffer)
-fragmentosDriver = math.ceil(tamanioDriver/tamanioBuffer)
+fragmentosMultimedia = math.ceil(tamanioMultimedia / tamanioBuffer)
+fragmentosDriver = math.ceil(tamanioDriver / tamanioBuffer)
 
 # Calcular Hash de archivo utilizando MD5
 # Multimedia
@@ -68,32 +69,55 @@ socketServidorUDP = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 socketServidorUDP.bind((ipLocal, puertoLocal))
 
 
+# Clase que representa un cliente
+class Cliente:
+    # Constructor
+    def __init__(self, pDireccion):
+        # Direccion del cliente
+        self.direccion = pDireccion
+
+    # Metodos
+    def darDireccion(self):
+        return self.direccion
+
+
+# Arreglo de clientes conectados listos para recibir archivos
+clientesConectados = []
+
 # Esperar mensajes de clientes
-numClientesConectados = 0
 print("Servidor UDP abierto a conexiones")
+
+seleccionaArchivoyNumeroClientes = False
 while (True):
     # Punto 5
-    seleccionaArchivoyNumeroClientes = False
     while (not seleccionaArchivoyNumeroClientes):
         # Seleccionar archivo
-        archivoSeleccionado = int(raw_input('Seleccione el archivo a enviar: 0: Multimedia (117 MB) 1: Driver (224 MB) '))
+        archivoSeleccionado = int(
+            raw_input('Seleccione el archivo a enviar: 0: Multimedia (117 MB) 1: Driver (224 MB)\n'))
         # Numero de clientes a enviar archivo
-        numClientes = int(raw_input('Indique el numero de clientes a los que se les va a enviar el archivo en simultaneo '))
-        if((archivoSeleccionado == 1 or archivoSeleccionado == 0) and numClientes > 0):
+        numClientes = int(
+            raw_input('Indique el numero de clientes a los que se les va a enviar el archivo en simultaneo\n'))
+        if ((archivoSeleccionado == 1 or archivoSeleccionado == 0) and numClientes > 0):
             seleccionaArchivoyNumeroClientes = True
 
     bytesAddressPair = socketServidorUDP.recvfrom(tamanioBuffer)
 
     message = bytesAddressPair[0]
 
-    address = bytesAddressPair[1]
+    direccion = bytesAddressPair[1]
 
-    if(message == 'Inicio'):
-        print('Inicio')
+    # Revisa el tipo de mensaje por el cliente y responde
+    if (message.decode("utf-8") == 'Inicio'):
+        mensajeConexionExitosa = str.encode("Cliente {}".format(direccion) + " conectado exitosamente con servidor")
+        socketServidorUDP.sendto(mensajeConexionExitosa, direccion)
+    elif (message.decode("utf-8") == 'Listo'):
+        clientesConectados.append(Cliente(direccion))
 
-    clientMsg = "Message from Client:{}".format(message)
-
-    print(clientMsg)
-
-
+    # Envia archivo y hash cuando el numero de clientes conectados es el deseado
+    if (len(clientesConectados) == numClientes):
+        archivoEnviar = True
+        hashEnviar = True
+        # Reinicia valores de archivo seleccionado y numero clientes a enviar archivo
+        archivoSeleccionado = -1
+        numClientes = 0
 
