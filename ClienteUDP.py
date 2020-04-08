@@ -11,10 +11,14 @@ import tqdm
 
 # Punto 1: Conectarse a servidor y mostrar estado de conexión. Dado que UDP no está orientado a la conexión, se verifica
 # la comunicación entre el cliente y servidor mediante un mensaje que manda el cliente y el servidor responde.
+print("Cliente UDP Transferencia de archivos")
+print("Se asume que en la primera comunicación con el servidor se utiliza un buffer con un tamaño de 1024")
 ipServidor = raw_input('Ingrese la dirección IP del servidor con el que se va a realizar la conexión:\n')
+# La siguiente linea se puede descomentar en pruebas
 ipServidor = "127.0.0.1"
 
 puertoServidor = raw_input('Ingrese el puerto del servidor:\n')
+# La siguiente linea se puede descomentar en pruebas
 puertoServidor = 20001
 
 direccionServidor = (ipServidor, puertoServidor)
@@ -58,7 +62,7 @@ socketClienteUDP.sendto(str.encode(mensajeListo), direccionServidor)
 # Recepción de tamaño de buffer | Número fragmentos a enviar | Hash calculado de archivo por parte del servidor | Nombre archivo
 informacionNecesaria = 0
 while(informacionNecesaria != 4):
-    mensajeServidor = socketClienteUDP.recvfrom(tamanioBuffer)
+    mensajeServidor = socketClienteUDP.recvfrom(1024)
     mensajeServidorString = mensajeServidor[0].decode("utf-8")
     if("Buffer" in mensajeServidorString):
         tamanioBuffer = int(mensajeServidorString[len("Buffer"):])
@@ -110,6 +114,11 @@ with open(nombreArchivo, 'rb') as archivoLeido:
         hashArchivo.update(buf)
         buf = archivoLeido.read(tamanioBuffer)
 valorHashArchivo = hashArchivo.hexdigest()
+
+# Punto 5
+# Notificación al servidor de la recepción del archivo
+socketClienteUDP.sendto(str.encode("Archivo recibido. El archivo se recibió de manera correcta: "
+                                   + str(hashServidor == hashArchivo)), direccionServidor)
 
 # Punto 7
 # Crear log

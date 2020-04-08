@@ -12,11 +12,9 @@ import time
 import tqdm
 from pip._vendor.distlib.compat import raw_input
 
-# Tamanio en el que se va a fragmentar los archivos.
-# Punto 2
-tamanioBuffer = raw_input(
-    'Defina el tamanio de los mensajes en que se van a fragmentar los archivos. Ingrese un numero '
-    'entre 1 - 65536\n')
+print("Servidor UDP Transferencia de Archivos")
+print("Se asume que para la primera conexión con los clientes se utiliza un buffer de tamaño de 1024")
+# Tamaño del buffer
 tamanioBuffer = 1024
 
 # Ubicar archivos
@@ -32,11 +30,6 @@ archivoDriver = "Archivos a Transferir/224MB.exe"
 
 # Tamanio archivo
 tamanioDriver = os.path.getsize(archivoDriver)
-
-# Punto 3
-# Numero de fragmentos
-fragmentosMultimedia = math.ceil(tamanioMultimedia / tamanioBuffer)
-fragmentosDriver = math.ceil(tamanioDriver / tamanioBuffer)
 
 # Calcular Hash de archivo utilizando MD5
 # Multimedia
@@ -60,6 +53,8 @@ valorHashDriver = hashDriver.hexdigest()
 # Punto 1
 ipLocal = "127.0.0.1"
 
+puertoLocal = raw_input('Ingrese el puerto en el que va a estar el servidor:\n')
+# La siguiente línea se puede descomentar en pruebas
 puertoLocal = 20001
 
 # Crear socket
@@ -93,6 +88,15 @@ seleccionaArchivoyNumeroClientes = False
 while (True):
     # Punto 5
     while (not seleccionaArchivoyNumeroClientes):
+        # Punto 2
+        # Tamaño en el que se va a fragmentar los archivos.
+        tamanioBuffer = int(raw_input(
+            'Defina el tamaño de los mensajes en que se van a fragmentar los archivos. Ingrese un numero '
+            'entre 1 - 65536\n'))
+        # Punto 3
+        # Numero de fragmentos
+        fragmentosMultimedia = math.ceil(tamanioMultimedia / tamanioBuffer)
+        fragmentosDriver = math.ceil(tamanioDriver / tamanioBuffer)
         # Seleccionar archivo
         archivoSeleccionado = int(
             raw_input('Seleccione el archivo a enviar: 0: Multimedia (117 MB) 1: Driver (224 MB)\n'))
@@ -102,8 +106,11 @@ while (True):
         if ((archivoSeleccionado == 1 or archivoSeleccionado == 0) and numClientes > 0):
             seleccionaArchivoyNumeroClientes = True
 
+    if (len(clientesConectados) == 0):
+        print("En el momento no hay clientes conectados listos para recibir archivos")
+
     # Recibe mensaje del cliente y la dirección IP del cliente
-    mensaje, direccion = socketServidorUDP.recvfrom(tamanioBuffer)
+    mensaje, direccion = socketServidorUDP.recvfrom(1024)
 
     # Revisa el tipo de mensaje por el cliente y responde
     if (mensaje.decode("utf-8") == 'Inicio'):
@@ -111,6 +118,7 @@ while (True):
         socketServidorUDP.sendto(mensajeConexionExitosa, direccion)
     elif (mensaje.decode("utf-8") == 'Listo'):
         clientesConectados.append(Cliente(direccion))
+        print("En el momento hay " + str(len(clientesConectados)) + " cliente(s) conectado(s) listo(s) para recibir archivos")
 
     # Envia archivo y hash cuando el numero de clientes conectados es el deseado
     if (len(clientesConectados) == numClientes):
@@ -158,7 +166,15 @@ while (True):
                             #        # update the progress bar
                             #        progreso.update(len(bytesLeidos))
 
+            # Recibe mensaje del cliente y la dirección IP del cliente
+            mensaje, direccion = socketServidorUDP.recvfrom(1024)
+
+            if ("recibido" in mensaje.decode("utf-8")):
+                print("El cliente {}".format(direccion) + " recibió el archivo. El status es el siguiente: "
+                      + "\n" + mensaje.decode("utf-8"))
+
         # Reinicia valores de archivo seleccionado y numero clientes a enviar archivo
         archivoSeleccionado = -1
         numClientes = 0
         seleccionaArchivoyNumeroClientes = False
+        clientesConectados = []
