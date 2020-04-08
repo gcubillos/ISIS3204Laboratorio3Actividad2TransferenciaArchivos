@@ -140,10 +140,11 @@ while (True):
             with open(rutaArchivoEnviar, 'rb') as archivoEnviar:
                 # Lectura de bytes del archivo
                 bytesLeidos = archivoEnviar.read(tamanioBuffer)
+                tiempoInicio = int(time.time())
                 while (len(bytesLeidos) > 0):
                     socketServidorUDP.sendto(bytesLeidos, i.darDireccion())
                     bytesLeidos = archivoEnviar.read(tamanioBuffer)
-                socketServidorUDP.sendto(str.encode("Fin Transmisión"),i.darDireccion())
+                socketServidorUDP.sendto(str.encode("FinTransmisión {}".format(tiempoInicio)),i.darDireccion())
                     # Actualizar barra de progreso
                     # progreso.update(len(bytesLeidos))
 

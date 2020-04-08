@@ -1,10 +1,10 @@
 # Código se basa en: https://pythontic.com/modules/socket/udp-client-server-example
 # https://www.binarytides.com/programming-udp-sockets-in-python/
+import logging
 from datetime import datetime
 import hashlib
 import socket
 import time
-
 from pip._vendor.distlib.compat import raw_input
 import os
 import tqdm
@@ -70,7 +70,8 @@ while(informacionNecesaria != 4):
         hashServidor = mensajeServidorString[len("Hash "):]
         informacionNecesaria += 1
     elif("Nombre" in mensajeServidorString):
-        nombreArchivo = "Archivos Recibidos/" + datetime.now().strftime("%d%m%Y %H.%M.%S ") + mensajeServidorString[len("Nombre "):].split("/")[1]
+        fechaArchivo = datetime.now().strftime("%d%m%Y %H.%M.%S ")
+        nombreArchivo = "Archivos Recibidos/" + fechaArchivo + mensajeServidorString[len("Nombre "):].split("/")[1]
         informacionNecesaria += 1
         basedir = os.path.dirname("Archivos Recibidos/")
         if not os.path.exists(basedir):
@@ -85,7 +86,6 @@ while(informacionNecesaria != 4):
 with open(nombreArchivo, 'wb') as archivoRecibido:
     # Lectura de bytes del archivo enviado por el servidor
     bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
-    tiempoInicio = int(time.time())
     numFragmentosRecibidos = 1
     while (len(bytesLeidos) > 0):
         archivoRecibido.write(bytesLeidos)
@@ -94,8 +94,9 @@ with open(nombreArchivo, 'wb') as archivoRecibido:
         except Exception as e:
             bytesLeidosString = 0
         else:
-            if "Fin" in bytesLeidosString:
+            if "FinTransmisión" in bytesLeidosString:
                 tiempoFinal = int(time.time())
+                tiempoInicio = int(bytesLeidosString[len("FinTransmisión "):])
                 break
         bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
         numFragmentosRecibidos += 1
@@ -110,6 +111,22 @@ with open(nombreArchivo, 'rb') as archivoLeido:
         buf = archivoLeido.read(tamanioBuffer)
 valorHashArchivo = hashArchivo.hexdigest()
 
-print(valorHashArchivo)
-print(hashServidor)
-print(valorHashArchivo == hashServidor)
+# Punto 7
+# Crear log
+logging.basicConfig(filename="Logs/" + fechaArchivo + "Intercambio.log", level=logging.INFO)
+# Reporte de si archivo está completo
+logging.info("---- Reporte Archivo ----")
+logging.info("---- Archivo completo ----"
+            + "\n" + "Número de fragmentos esperados: " + str(numFragmentos) +
+            "\n" + "Número de fragmentos recibidos: " + str(numFragmentosRecibidos)
+            + "\n" + "El archivo está completo: " + str(numFragmentosRecibidos == numFragmentos))
+# Reporte si el archivo está correcto
+logging.info("---- Archivo correcto ----")
+logging.info("Hash recibido por el servidor: " + hashServidor
+            + "\n" + "Hash calculado en cliente: " + valorHashArchivo
+            + "\n" + "El archivo se recibió de manera correcta: " + str(hashServidor == hashArchivo))
+# Reporte de tiempo de transferencia
+logging.info("---- Tiempo Transferencia ----")
+logging.info("Tiempo inicio de transferencia paquete con datos en servidor: "
+            + "\n" + "Tiempo en el que se recibe el último paquete del servidor: " + str(tiempoFinal)
+            + "\n" + "El tiempo total de transferencia fue de: " + str(tiempoFinal-tiempoInicio) + " segundos")
