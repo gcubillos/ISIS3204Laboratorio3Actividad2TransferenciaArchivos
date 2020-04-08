@@ -90,7 +90,7 @@ while(informacionNecesaria != 4):
 with open(nombreArchivo, 'wb') as archivoRecibido:
     # Lectura de bytes del archivo enviado por el servidor
     bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
-    numFragmentosRecibidos = 1
+    numFragmentosRecibidos = 0
     while (len(bytesLeidos) > 0):
         archivoRecibido.write(bytesLeidos)
         try:
@@ -136,6 +136,6 @@ logging.info("Hash recibido por el servidor: " + hashServidor
             + "\n" + "El archivo se recibió de manera correcta: " + str(hashServidor == hashArchivo))
 # Reporte de tiempo de transferencia
 logging.info("---- Tiempo Transferencia ----")
-logging.info("Tiempo inicio de transferencia paquete con datos en servidor: "
+logging.info("Tiempo inicio de transferencia paquete con datos en servidor: " + str(tiempoInicio)
             + "\n" + "Tiempo en el que se recibe el último paquete del servidor: " + str(tiempoFinal)
             + "\n" + "El tiempo total de transferencia fue de: " + str(tiempoFinal-tiempoInicio) + " segundos")
