@@ -49,3 +49,6 @@ mensajeListo = ('Listo')
 
 # Enviar mensaje a servidor
 socketClienteUDP.sendto(str.encode(mensajeListo), direccionServidor)
+
+# Recibe archivo
+d = socketClienteUDP.recvfrom(tamanioBuffer)
