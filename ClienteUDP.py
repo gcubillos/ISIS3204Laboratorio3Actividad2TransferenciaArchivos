@@ -47,8 +47,22 @@ while(not preparado):
 # Se envía la notificación al servidor
 mensajeListo = ('Listo')
 
-# Enviar mensaje a servidor
+# Enviar mensaje de listo a servidor
 socketClienteUDP.sendto(str.encode(mensajeListo), direccionServidor)
 
-# Recibe archivo
-d = socketClienteUDP.recvfrom(tamanioBuffer)
+# Punto 3
+# Recepción de tamaño de buffer | Número fragmentos a enviar | Hash calculado de archivo por parte del servidor
+# Recibe mensaje del servidor y la dirección IP del cliente
+informacionNecesaria = 0
+while(informacionNecesaria != 3):
+    mensajeServidor = socketClienteUDP.recvfrom(tamanioBuffer)
+    mensajeServidorString = mensajeServidor[0].decode("utf-8")
+    if("Buffer" in mensajeServidorString):
+        tamanioBuffer = int(mensajeServidorString[len("Buffer"):])
+        informacionNecesaria += 1
+    elif("Fragmentos" in mensajeServidorString):
+        numFragmentos = int(mensajeServidorString[len("Fragmentos"):])
+        informacionNecesaria += 1
+    elif("Hash" in mensajeServidorString):
+        hashServidor = mensajeServidorString[len("Hash"):]
+        informacionNecesaria += 1

@@ -115,24 +115,24 @@ while (True):
         # Determina la ruta del archivo a enviar, el hash a enviar y el número de fragmentos basado en el archivo escogido
         # para transferencia
         rutaArchivoEnviar = archivoMultimedia
-        hashEnviar = hashMultimedia
+        hashEnviar = valorHashMultimedia
         numFragmentosEnviar = fragmentosMultimedia
         if (archivoSeleccionado):
             rutaArchivoEnviar = archivoDriver
-            hashEnviar = hashDriver
+            hashEnviar = valorHashDriver
             numFragmentosEnviar = fragmentosDriver
         for i in clientesConectados:
             # Punto 3
             # Enviar tamaño buffer | Número fragmentos a enviar | Hash calculado de archivo
-            socketServidorUDP.sendto(str.encode("Buffer: {}".format(tamanioBuffer)
-                                                + " Fragmentos: {}".format(numFragmentosEnviar)
-                                                + " Hash: {}".format(hashEnviar)), i.darDireccion())
+            socketServidorUDP.sendto(str.encode("Buffer {}".format(tamanioBuffer)), i.darDireccion())
+            socketServidorUDP.sendto(str.encode("Fragmentos {}".format(numFragmentosEnviar)), i.darDireccion())
+            socketServidorUDP.sendto(str.encode("Hash {}".format(hashEnviar)), i.darDireccion())
 
             # Enviar archivo
             # Barra de progreso
             progreso = tqdm.tqdm(range(numFragmentosEnviar), f"Sending {rutaArchivoEnviar}", unit="B",
                                  unit_scale=True, unit_divisor=tamanioBuffer)
-
+            '''
             with open(rutaArchivoEnviar, 'rb') as archivoEnviar:
                 for _ in progreso:
                     # Lectura de bytes del archivo
@@ -140,7 +140,7 @@ while (True):
                     while (len(bytesLeidos) > 0):
                         socketServidorUDP.sendto(bytesLeidos,i.darDireccion())
                         # update the progress bar
-                        progreso.update(len(bytesLeidos))
+                        progreso.update(len(bytesLeidos))'''
 
         #
         #for _ in progreso:
