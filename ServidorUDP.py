@@ -131,8 +131,8 @@ while (True):
 
             # Enviar archivo
             # Barra de progreso
-            progreso = tqdm.tqdm(range(numFragmentosEnviar), f"Sending {rutaArchivoEnviar}", unit="B",
-                                 unit_scale=True, unit_divisor=tamanioBuffer)
+            # progreso = tqdm.tqdm(range(numFragmentosEnviar), f"Sending {rutaArchivoEnviar}", unit="B",
+            #                     unit_scale=True, unit_divisor=tamanioBuffer)
 
             # Transferencia de archivo
             with open(rutaArchivoEnviar, 'rb') as archivoEnviar:

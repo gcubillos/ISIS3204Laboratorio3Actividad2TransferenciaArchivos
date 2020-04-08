@@ -1,6 +1,6 @@
 # Código se basa en: https://pythontic.com/modules/socket/udp-client-server-example
 # https://www.binarytides.com/programming-udp-sockets-in-python/
-
+import hashlib
 import socket
 from pip._vendor.distlib.compat import raw_input
 import tqdm
@@ -79,3 +79,16 @@ with open(nombreArchivo, 'wb') as archivoRecibido:
     while (len(bytesLeidos) > 0):
         archivoRecibido.write(bytesLeidos)
         bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
+
+# Calcular hash de archivo recibido utilizando MD5
+hashArchivo = hashlib.md5()
+with open(nombreArchivo, 'rb') as archivoLeido:
+    buf = archivoLeido.read(tamanioBuffer)
+    while len(buf) > 0:
+        hashArchivo.update(buf)
+        buf = archivoLeido.read(tamanioBuffer)
+valorHashArchivo = hashArchivo.hexdigest()
+
+print(valorHashArchivo)
+print(hashServidor)
+print(valorHashArchivo == hashServidor)
