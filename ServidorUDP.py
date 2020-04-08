@@ -123,33 +123,37 @@ while (True):
             numFragmentosEnviar = fragmentosDriver
         for i in clientesConectados:
             # Punto 3
-            # Enviar tamaño buffer | Número fragmentos a enviar | Hash calculado de archivo
+            # Enviar tamaño buffer | Número fragmentos a enviar | Hash calculado de archivo | Nombre archivo
             socketServidorUDP.sendto(str.encode("Buffer {}".format(tamanioBuffer)), i.darDireccion())
             socketServidorUDP.sendto(str.encode("Fragmentos {}".format(numFragmentosEnviar)), i.darDireccion())
             socketServidorUDP.sendto(str.encode("Hash {}".format(hashEnviar)), i.darDireccion())
+            socketServidorUDP.sendto(str.encode("Nombre {}".format(rutaArchivoEnviar)), i.darDireccion())
 
             # Enviar archivo
             # Barra de progreso
             progreso = tqdm.tqdm(range(numFragmentosEnviar), f"Sending {rutaArchivoEnviar}", unit="B",
                                  unit_scale=True, unit_divisor=tamanioBuffer)
-            '''
-            with open(rutaArchivoEnviar, 'rb') as archivoEnviar:
-                for _ in progreso:
-                    # Lectura de bytes del archivo
-                    bytesLeidos = archivoEnviar.read(tamanioBuffer)
-                    while (len(bytesLeidos) > 0):
-                        socketServidorUDP.sendto(bytesLeidos,i.darDireccion())
-                        # update the progress bar
-                        progreso.update(len(bytesLeidos))'''
 
-        #
-        #for _ in progreso:
-        #    # Lectura de bytes del archivo
-        #    bytesLeidos = archivoEnviar.read(tamanioBuffer)
-        #    while (len(bytesLeidos) > 0):
-        #        socketServidorUDP.sendto(bytesLeidos, i.darDireccion())
-        #        # update the progress bar
-        #        progreso.update(len(bytesLeidos))
+            # Transferencia de archivo
+            with open(rutaArchivoEnviar, 'rb') as archivoEnviar:
+                # Lectura de bytes del archivo
+                bytesLeidos = archivoEnviar.read(tamanioBuffer)
+                while (len(bytesLeidos) > 0):
+                    socketServidorUDP.sendto(bytesLeidos, i.darDireccion())
+                    bytesLeidos = archivoEnviar.read(tamanioBuffer)
+                    # Actualizar barra de progreso
+                    # progreso.update(len(bytesLeidos))
+
+                    
+                            #
+                            #for _ in progreso:
+                            #    # Lectura de bytes del archivo
+                            #    bytesLeidos = archivoEnviar.read(tamanioBuffer)
+                            #    while (len(bytesLeidos) > 0):
+                            #        socketServidorUDP.sendto(bytesLeidos, i.darDireccion())
+                            #        # update the progress bar
+                            #        progreso.update(len(bytesLeidos))
+
         # Reinicia valores de archivo seleccionado y numero clientes a enviar archivo
         archivoSeleccionado = -1
         numClientes = 0

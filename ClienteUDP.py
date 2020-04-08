@@ -51,10 +51,9 @@ mensajeListo = ('Listo')
 socketClienteUDP.sendto(str.encode(mensajeListo), direccionServidor)
 
 # Punto 3
-# Recepción de tamaño de buffer | Número fragmentos a enviar | Hash calculado de archivo por parte del servidor
-# Recibe mensaje del servidor y la dirección IP del cliente
+# Recepción de tamaño de buffer | Número fragmentos a enviar | Hash calculado de archivo por parte del servidor | Nombre archivo
 informacionNecesaria = 0
-while(informacionNecesaria != 3):
+while(informacionNecesaria != 4):
     mensajeServidor = socketClienteUDP.recvfrom(tamanioBuffer)
     mensajeServidorString = mensajeServidor[0].decode("utf-8")
     if("Buffer" in mensajeServidorString):
@@ -64,5 +63,19 @@ while(informacionNecesaria != 3):
         numFragmentos = int(mensajeServidorString[len("Fragmentos"):])
         informacionNecesaria += 1
     elif("Hash" in mensajeServidorString):
-        hashServidor = mensajeServidorString[len("Hash"):]
+        hashServidor = mensajeServidorString[len("Hash "):]
         informacionNecesaria += 1
+    elif("Nombre" in mensajeServidorString):
+        nombreArchivo = "Archivos Recibidos/" + mensajeServidorString[len("Nombre "):].split("/")[1]
+        informacionNecesaria += 1
+
+# Recepción del archivo
+# Barra de progreso
+
+# Escribir la información recibida
+with open(nombreArchivo, 'wb') as archivoRecibido:
+    # Lectura de bytes del archivo enviado por el servidor
+    bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
+    while (len(bytesLeidos) > 0):
+        archivoRecibido.write(bytesLeidos)
+        bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
