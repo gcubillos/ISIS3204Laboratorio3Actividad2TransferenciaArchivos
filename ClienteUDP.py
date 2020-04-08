@@ -6,6 +6,7 @@ import socket
 import time
 
 from pip._vendor.distlib.compat import raw_input
+import os
 import tqdm
 
 # Punto 1: Conectarse a servidor y mostrar estado de conexión. Dado que UDP no está orientado a la conexión, se verifica
@@ -71,11 +72,16 @@ while(informacionNecesaria != 4):
     elif("Nombre" in mensajeServidorString):
         nombreArchivo = "Archivos Recibidos/" + datetime.now().strftime("%d%m%Y %H.%M.%S ") + mensajeServidorString[len("Nombre "):].split("/")[1]
         informacionNecesaria += 1
+        basedir = os.path.dirname("Archivos Recibidos/")
+        if not os.path.exists(basedir):
+            os.makedirs(basedir)
+
 
 # Recepción del archivo
 # Barra de progreso
 
 # Escribir la información recibida
+
 with open(nombreArchivo, 'wb') as archivoRecibido:
     # Lectura de bytes del archivo enviado por el servidor
     bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
