@@ -142,6 +142,14 @@ while (True):
                         # update the progress bar
                         progreso.update(len(bytesLeidos))
 
+        #
+        #for _ in progreso:
+        #    # Lectura de bytes del archivo
+        #    bytesLeidos = archivoEnviar.read(tamanioBuffer)
+        #    while (len(bytesLeidos) > 0):
+        #        socketServidorUDP.sendto(bytesLeidos, i.darDireccion())
+        #        # update the progress bar
+        #        progreso.update(len(bytesLeidos))
         # Reinicia valores de archivo seleccionado y numero clientes a enviar archivo
         archivoSeleccionado = -1
         numClientes = 0
