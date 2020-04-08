@@ -7,6 +7,8 @@ import math
 import os
 import socket
 import hashlib
+import time
+
 import tqdm
 from pip._vendor.distlib.compat import raw_input
 
@@ -141,6 +143,7 @@ while (True):
                 while (len(bytesLeidos) > 0):
                     socketServidorUDP.sendto(bytesLeidos, i.darDireccion())
                     bytesLeidos = archivoEnviar.read(tamanioBuffer)
+                socketServidorUDP.sendto(str.encode("Fin Transmisión"),i.darDireccion())
                     # Actualizar barra de progreso
                     # progreso.update(len(bytesLeidos))
 
@@ -157,3 +160,4 @@ while (True):
         # Reinicia valores de archivo seleccionado y numero clientes a enviar archivo
         archivoSeleccionado = -1
         numClientes = 0
+        seleccionaArchivoyNumeroClientes = False

@@ -1,7 +1,10 @@
 # Código se basa en: https://pythontic.com/modules/socket/udp-client-server-example
 # https://www.binarytides.com/programming-udp-sockets-in-python/
+from datetime import datetime
 import hashlib
 import socket
+import time
+
 from pip._vendor.distlib.compat import raw_input
 import tqdm
 
@@ -66,7 +69,7 @@ while(informacionNecesaria != 4):
         hashServidor = mensajeServidorString[len("Hash "):]
         informacionNecesaria += 1
     elif("Nombre" in mensajeServidorString):
-        nombreArchivo = "Archivos Recibidos/" + mensajeServidorString[len("Nombre "):].split("/")[1]
+        nombreArchivo = "Archivos Recibidos/" + datetime.now().strftime("%d%m%Y %H.%M.%S ") + mensajeServidorString[len("Nombre "):].split("/")[1]
         informacionNecesaria += 1
 
 # Recepción del archivo
@@ -76,9 +79,21 @@ while(informacionNecesaria != 4):
 with open(nombreArchivo, 'wb') as archivoRecibido:
     # Lectura de bytes del archivo enviado por el servidor
     bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
+    tiempoInicio = int(time.time())
+    numFragmentosRecibidos = 1
     while (len(bytesLeidos) > 0):
         archivoRecibido.write(bytesLeidos)
+        try:
+            bytesLeidosString = bytesLeidos.decode("utf-8")
+        except Exception as e:
+            bytesLeidosString = 0
+        else:
+            if "Fin" in bytesLeidosString:
+                tiempoFinal = int(time.time())
+                break
         bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
+        numFragmentosRecibidos += 1
+
 
 # Calcular hash de archivo recibido utilizando MD5
 hashArchivo = hashlib.md5()
