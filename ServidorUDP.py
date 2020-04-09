@@ -172,6 +172,7 @@ while (True):
             if ("recibido" in mensaje.decode("utf-8")):
                 print("El cliente {}".format(direccion) + " recibió el archivo. El status es el siguiente: "
                       + "\n" + mensaje.decode("utf-8"))
+                socketServidorUDP.sendto(str.encode("{}".format(direccion)), i.darDireccion())
 
         # Reinicia valores de archivo seleccionado y numero clientes a enviar archivo
         archivoSeleccionado = -1

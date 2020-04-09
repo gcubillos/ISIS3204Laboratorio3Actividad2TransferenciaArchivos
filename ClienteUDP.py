@@ -21,7 +21,7 @@ puertoServidor = raw_input('Ingrese el puerto del servidor:\n')
 # La siguiente linea se puede descomentar en pruebas
 puertoServidor = 20001
 
-direccionServidor = (ipServidor, puertoServidor)
+direccionServidor = (ipServidor, int(puertoServidor))
 
 mensajeInicio = str.encode('Inicio')
 
@@ -75,6 +75,7 @@ while(informacionNecesaria != 4):
         informacionNecesaria += 1
     elif("Nombre" in mensajeServidorString):
         fechaArchivo = datetime.now().strftime("%d%m%Y %H.%M.%S ")
+        nombreArchivoServidor = mensajeServidorString[len("Nombre "):].split("/")[1]
         nombreArchivo = "Archivos Recibidos/" + fechaArchivo + mensajeServidorString[len("Nombre "):].split("/")[1]
         informacionNecesaria += 1
         basedir = os.path.dirname("Archivos Recibidos/")
@@ -92,7 +93,6 @@ with open(nombreArchivo, 'wb') as archivoRecibido:
     bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
     numFragmentosRecibidos = 0
     while (len(bytesLeidos) > 0):
-        archivoRecibido.write(bytesLeidos)
         try:
             bytesLeidosString = bytesLeidos.decode("utf-8")
         except Exception as e:
@@ -102,6 +102,7 @@ with open(nombreArchivo, 'wb') as archivoRecibido:
                 tiempoFinal = int(time.time())
                 tiempoInicio = int(bytesLeidosString[len("FinTransmisión "):])
                 break
+        archivoRecibido.write(bytesLeidos)
         bytesLeidos = socketClienteUDP.recvfrom(tamanioBuffer)[0]
         numFragmentosRecibidos += 1
 
@@ -119,12 +120,16 @@ valorHashArchivo = hashArchivo.hexdigest()
 # Notificación al servidor de la recepción del archivo
 socketClienteUDP.sendto(str.encode("Archivo recibido. El archivo se recibió de manera correcta: "
                                    + str(hashServidor == hashArchivo)), direccionServidor)
+direccionCliente = socketClienteUDP.recvfrom(tamanioBuffer)[0].decode("utf-8")
 
 # Punto 7
 # Crear log
 logging.basicConfig(filename="Logs/" + fechaArchivo + "Intercambio.log", level=logging.INFO)
 # Reporte de si archivo está completo
 logging.info("---- Reporte Archivo ----")
+logging.info("Fecha log: " + fechaArchivo)
+logging.info("Nombre Archivo: " + nombreArchivoServidor)
+logging.info("Cliente: " + str(direccionCliente))
 logging.info("---- Archivo completo ----"
             + "\n" + "Número de fragmentos esperados: " + str(numFragmentos) +
             "\n" + "Número de fragmentos recibidos: " + str(numFragmentosRecibidos)
